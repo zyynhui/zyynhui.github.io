@@ -292,6 +292,82 @@
 
 
   
+    <article id="post-pack" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/26/pack/" class="article-date">
+      <time datetime="2017-07-26T02:25:46.000Z" itemprop="datePublished">2017-07-26</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/26/pack/">pack</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <ol>
+<li>使用webpack 配置步骤<br>① npm init -y ②建文件 dist（上线文件）    src  源代码（ index.html  main.js ）<br>根目录中建配置文件webpack.config.js(黑窗口中输入webpack后，会自动去找这个文件)<br>③npm i jquery -S<br>④如果想要实现实时打包和构建，需要依赖于 webpack-dev-server 这个工具<br>⑤ 配置webpack-dev-server的步骤：<br>运行<code>cnpm i webpack-dev-server  webpack -D</code>（本地也需要安装webpack）<br>在 <code>package.json</code>的<code>scripts</code>节点下，新增<code>dev</code>脚本，脚本的命令是<br><code>&quot;dev&quot;: &quot;webpack-dev-server&quot;</code></li>
+</ol>
+<p>在控制台，运行<code>npm run dev</code> （自动更新）<br>原理： 通过 <code>webpack-dev-server</code>打包好的<code>bundle.js</code>存放到了内存中，被托管于项目的跟目录中；<br>因此，如果要访问<code>bundle.js</code>,需要通过`<script src="/bundle.js"></script><br>（根目录中的bundle.js不在物理磁盘中，而在内存中，所以看不见）</p>
+<ol>
+<li>使用html-webpack-plugin插件配置启动页面<br>html-webpack-plugin它的作用，就是把index.html页面，也托管到内存中，进一步增加网站在开发过程中，运行的速度；第二个作用：自动把打包好的bundle.js注入到页面中；<br>①运行cnpm i html-webpack-plugin -D 把插件安装到项目的开发依赖中；<br>②在webpack.config.js中，导入html-webpack-plugin， 得到一个构造函数：</li>
+</ol>
+<p>// 导入 html-webpack-plugin 它之后，就得到一个构造函数<br>const HtmlWebpackPlugin = require(‘html-webpack-plugin’)<br>new 一个实例对象，并在new实例对象的时候，提供一个配置对象：<br>// 这个插件的作用，就是把 index.html 页面，复制一份，托管到内存中<br>③  const htmlConfig = new HtmlWebpackPlugin({<br>template: path.join(__dirname, ‘./src/index.html’), // 指定要复制的页面的路径<br> filename: ‘index.html’ // 指定要生成的页面的名称（这个生成的页面，被托管到了内存中）,自动生成的页面，被托管到了 项目的根目录中；<br>})<br>把 new 出来的实例对象，挂载到 plugins 数组中即可：<br>  plugins: [ // 这个节点，是专门来放置 webpack 相关的插件的<br>   htmlConfig<br>]<br>3.实现自动打开浏览器、热更新和配置浏览器的默认端口号<br>如果要让webpack第一次打包构建好项目以后，自动打开浏览器，可以使用–open参数；<br>在package.json 中修改<br>“dev”: “webpack-dev-server –open”</p>
+<p>–open chrome<br>–open firefox<br>–open iexplore<br>如果要指定运行的端口号，要使用–port 3000  记得空格<br>如果要指定运行的IP地址，要使用–host 127.0.0.1<br>如果要在开发阶段，压缩网络传输时候的文件，要使用–compress<br>如果要展示编译进度，要使用–progress</p>
+<p>4.webpack 默认，只能帮我们打包并处理 .js 文件，但是，无法处理那些 非 .js 文件；<br>处理css文件<br>在mian.js中先导入     import ‘./css/index.css’</p>
+<p>运行cnpm i style-loader css-loader -D安装合适的loader<br>找到webpack.config.js配置文件，新增一个module节点，并为module节点提供rules数组匹配规则：<br>  module: { // 这个 module 节点，可以配置好多的第三方loader模块<br>   rules: [ // 这个  rules 是 第三方文件后缀名的匹配规则，在这里，是通过后缀名来匹配规则的      { test: /.css$/, use: [‘style-loader’, ‘css-loader’] }<br> ]<br>}</p>
+<ol>
+<li>es6中的导入和导出</li>
+</ol>
+<p>// 这个用的也比较多<br>export default {<br>  a: 10,<br>  b: 20,<br>  name,<br>  info<br>}<br>export var testA = ‘QQQ’ （很少用）<br>知道对应方式</p>
+<ol>
+<li>使用webpack打包less文件<br>运行cnpm i less-loader less -D安装相关的loader和内置依赖项<br>在 module 节点的 rules数组中，添加一个 loader 配置规则：<br>{ test: /.less$/, use: [‘style-loader’, ‘css-loader’, ‘less-loader’] }<br>使用webpack打包scss文件  index.scss（超级样式）<br>运行cnpm i sass-loader node-sass -D 安装相关的loader和内置（前置）依赖项<br>添加loader匹配规则：<br>{ test: /.scss$/, use: [‘style-loader’, ‘css-loader’, ‘sass-loader’] }</li>
+</ol>
+<p>7.使用webpack处理css中的路径</p>
+<p>运行 cnpm i url-loader file-loader -D<br>添加loader匹配规则：（如果只有一个loader也可以不用写[ ] 直接写名字就行<br>）<br>如：   { test: /.jpg|png|gif|bmp$/, use: ‘url-loader’ }<br>可以为url-loader提供limit和name参数，来规定 极限值和 打包之后的图片名称；<br>?limit=图片的字节（limit值&gt;=图片的字节 ，url值就会转换为base64）<br>{ test: /.jpg|png|gif|bmp$/, use: ‘url-loader?limit=1&amp;name=[hash:8]-[name].[ext]’ }<br>其中，[hash:8] 取hash值的前8位； [name]表示源文件名称 ； [ext]表示源文件的后缀名(解决图片重名问题）</p>
+<p>8.class关键字，这是 ES6中实现面向对象编程的新语法<br>// 在 React阶段，我们必须会讲到 class 关键字 ，因为在react中，就是用 class关键字来创建组件的构造函数的<br>class Person {<br>  static info = { country: ‘China’ }<br>}<br>console.log(Person.info)<br>使用babel处理高级JS语法<br>webpack 默认只能够打包处理一部分的高级JS语法；<br>如果要使用babel处理高级的ES语法，需要安装两套包：<br>运行cnpm i babel-core babel-loader babel-plugin-transform-runtime -D<br>运行cnpm i babel-preset-env babel-preset-stage-0 -D // preset 是语法的意思</p>
+<p>添加loader规则，注意：一定要把 node_modules 添加到 exclude 排除项:<br> { test: /.js$/, use: ‘babel-loader’, exclude: /node_modules/ } // exclude 这个选项一定要添加<br>加  .babelrc  的babel配置文件，里面配置了babel用到到的语法和插件，注意，这个文件中，必须符合JSON规范，因此，不能使用单引号和注释：<br>{<br> “presets”: [“env”, “stage-0”],<br> “plugins”: [“transform-runtime”]<br>}</p>
+
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-pp" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
